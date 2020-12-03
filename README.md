@@ -4,9 +4,9 @@ I got invovled in a metadata cleanup project following the RenouVaud project, in
 Some local classification data was lost during the migration. This project aims to extract select classification authority records from the former system
 and map them to the model used by Alma.
 
-##Lab notes
+## Lab notes
 
-###Dec 3, 2020
+### Dec 3, 2020
 After trying to write my own XSL transform, I realized an easy way to get a list of all MARC tags in the source file is to use MarcEdit:
 1. Convert MARCXML to MARC
 2. Run the Field Count report in MarcEdit
