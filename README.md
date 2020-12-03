@@ -12,7 +12,7 @@ After trying to write my own XSL transform, I realized an easy way to get a list
 2. Run the Field Count report in MarcEdit
 
 Sample:
-|-------|----------|------------|-------| 
+
 | Field | Subfield | In Records | Total | 
 |-------|----------|------------|-------| 
 | 000   |          | 5          | 5     | 
@@ -43,4 +43,4 @@ Sample:
 |       | $x       |            | 3     | 
 |       | $2       |            | 8     | 
 |       | $v       |            | 7     | 
-|-------|----------|------------|-------| 
+
