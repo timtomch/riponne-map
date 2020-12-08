@@ -6,9 +6,19 @@ and map them to the model used by Alma.
 
 ## Lab notes
 
+### Dec 8, 2020
+Started playing with sample file. Able to read XMLMARC using pymarc, check against `172__$a` and write file.
+
+Running small function tests on the [walkthrough.ipynb](walkthrough.ipynb) iPython notebook then moving on to [riponne-main.py](riponne-main.py) for processing.
+
+TO DO:
+* Add logic for records without `172__$a`
+* Add BCUR switching logic
+* Start work on mapping function
+
 ### Dec 3, 2020
 After trying to write my own XSL transform, I realized an easy way to get a list of all MARC tags in the source file is to use MarcEdit:
-1. Convert MARCXML to MARC
+1. Convert MARCXML to MARC (edit: this is not actually necessary, MarcEdit can open MARCXML natively)
 2. Run the Field Count report in MarcEdit
 
 Sample:
@@ -44,12 +54,3 @@ Sample:
 |       | $2       |            | 8     | 
 |       | $v       |            | 7     | 
 
-### Dec 8, 2020
-Started playing with sample file. Able to read XMLMARC using pymarc, check against `172__$a` and write file.
-
-Running small function tests on the [walkthrough.ipynb](walkthrough.ipynb) iPython notebook then moving on to [riponne-main.py](riponne-main.py) for processing.
-
-TO DO:
-* Add logic for records without `172__$a`
-* Add BCUR switching logic
-* Start work on mapping function
