@@ -9,8 +9,8 @@ mapping = True
 
 def record_map(record):
     if record['172']['2'] in target:
-        #writer.write(record)
-        print(record)
+        writer.write(record)
+        #print(record)
       
     
 
@@ -51,9 +51,10 @@ def main(argv):
         print(f"Processing {inputfile} without mapping")
     
     
-    #global writer = XMLWriter(open(outputfile,'wb'))
+    global writer
+    writer = XMLWriter(open(outputfile,'wb'))
     map_xml(record_map,inputfile)
-    #writer.close()    
+    writer.close()    
     print(f'Saved as {outputfile}')
 
 if __name__ == "__main__":
