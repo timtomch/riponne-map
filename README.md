@@ -11,6 +11,8 @@ Started playing with sample file. Able to read XMLMARC using pymarc, check again
 
 Running small function tests on the [walkthrough.ipynb](walkthrough.ipynb) iPython notebook then moving on to [riponne-main.py](riponne-main.py) for processing.
 
+XML output files can be cleaned up (i.e. nicely indented etc.) by using `xmllint -format -recover outfile.xml > outfile-clean.xml`.
+
 TO DO:
 * Add logic for records without `172__$a`
 * Add BCUR switching logic
