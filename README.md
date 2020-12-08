@@ -47,7 +47,7 @@ Sample:
 ### Dec 8, 2020
 Started playing with sample file. Able to read XMLMARC using pymarc, check against `172__$a` and write file.
 
-Running small function tests on the [walkthrough.ipynb](walkthrough.ipynb) iPython notebook then moving on to [riponne_main.py](riponne_main.py) for processing.
+Running small function tests on the [walkthrough.ipynb](walkthrough.ipynb) iPython notebook then moving on to [riponne-main.py](riponne-main.py) for processing.
 
 TO DO:
 * Add logic for records without `172__$a`
