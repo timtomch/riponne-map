@@ -8,16 +8,29 @@
   </xsl:variable>
 
   <xsl:key name="tags" match="*" use="name()"/>
+  <xsl:key name="elements" match="*" use="name()"/>
 
   <xsl:template match="/">
+    <xsl:text>Debug: tous les tags</xsl:text>
     <xsl:value-of select="$newline"/>
-    <xsl:text>Tags MARC utilisés</xsl:text>
+    <xsl:for-each select="//@tag">
+        <xsl:value-of select="."/>
+        <xsl:value-of select="$newline"/>
+        <xsl:for-each select="../*/@code">
+            <xsl:value-of select="."/>
+            <xsl:value-of select="$newline"/>
+        
+        </xsl:for-each>
+    </xsl:for-each>
+    
+    <xsl:value-of select="$newline"/>
+    <xsl:text>All elements (example)</xsl:text>
     <xsl:value-of select="$newline"/>
     <xsl:value-of select="$newline"/>
     <xsl:for-each 
-      select="//*[generate-id(.)=generate-id(key('tags',name())[1])]">
+      select="//*[generate-id(.)=generate-id(key('elements',name())[1])]">
       <xsl:sort select="name()"/>
-      <xsl:for-each select="key('tags', name())">
+      <xsl:for-each select="key('elements', name())">
         <xsl:if test="position()=1">
           <xsl:text>Element </xsl:text>
           <xsl:value-of select="name()"/>

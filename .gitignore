@@ -1,4 +1,6 @@
 sample-files/
 source-files/
 output/
+analysis/
 .DS_Store
+.ipynb_checkpoints/
