@@ -6,6 +6,21 @@ and map them to the model used by Alma.
 
 ## Lab notes
 
+### Dec 9, 2020
+Added logic for records without `172__$a`
+
+Successfully ran the processing routine for `musg` on all `temp*` source files.
+
+To merge the resulting XML files, I used this [XSL Transform from Oliver Becker](XLST/merge.xslt) ([source](http://web.archive.org/web/20160809092524/http://www2.informatik.hu-berlin.de/~obecker/XSLT/#merge)). 
+
+Usage (I need to find a better way to call Java8, which is needed by the latest version of Saxon):
+
+```
+/Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java -jar ../SaxonHE10-3J/saxon-he-10.3.jar output/musg0.xml XSLT/merge.xslt with=musg1.xml > musg01.xml
+```
+
+Come to think of it, this could be done in Python directly as well, I suppose.
+
 ### Dec 8, 2020
 Started playing with sample file. Able to read XMLMARC using pymarc, check against `172__$a` and write file.
 
@@ -14,9 +29,9 @@ Running small function tests on the [walkthrough.ipynb](walkthrough.ipynb) iPyth
 XML output files can be cleaned up (i.e. nicely indented etc.) by using `xmllint -format -recover outfile.xml > outfile-clean.xml`.
 
 TO DO:
-* Add logic for records without `172__$a`
-* Add BCUR switching logic
-* Start work on mapping function
+[x] Add logic for records without `172__$a`
+[] Add BCUR switching logic
+[] Start work on mapping function
 
 ### Dec 3, 2020
 After trying to write my own XSL transform, I realized an easy way to get a list of all MARC tags in the source file is to use MarcEdit:

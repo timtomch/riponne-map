@@ -8,8 +8,12 @@ target = ''
 mapping = True
 
 def record_map(record):
-    if record['172']['2'] in target:
-        writer.write(record)
+    try:
+        if record['172']['2'] in target:
+            writer.write(record)
+    except TypeError:
+        print("Record {} does not have a 072__$2 field".format(record['001']))
+        
         #print(record)
       
     
