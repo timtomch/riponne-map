@@ -11,7 +11,7 @@ Added logic for records without `172__$a`
 
 Successfully ran the processing routine for `musg` on all `temp*` source files.
 
-To merge the resulting XML files, I used this [XSL Transform from Oliver Becker](XLST/merge.xslt) ([source](http://web.archive.org/web/20160809092524/http://www2.informatik.hu-berlin.de/~obecker/XSLT/#merge)). 
+To merge the resulting XML files, I used this [XSL Transform from Oliver Becker](XSLT/merge.xslt) ([source](http://web.archive.org/web/20160809092524/http://www2.informatik.hu-berlin.de/~obecker/XSLT/#merge)). 
 
 Usage (I need to find a better way to call Java8, which is needed by the latest version of Saxon):
 
