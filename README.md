@@ -29,9 +29,9 @@ Running small function tests on the [walkthrough.ipynb](walkthrough.ipynb) iPyth
 XML output files can be cleaned up (i.e. nicely indented etc.) by using `xmllint -format -recover outfile.xml > outfile-clean.xml`.
 
 TO DO:
-[x] Add logic for records without `172__$a`
-[] Add BCUR switching logic
-[] Start work on mapping function
+- [x] Add logic for records without `172__$a`
+- [ ] Add BCUR switching logic
+- [ ] Start work on mapping function
 
 ### Dec 3, 2020
 After trying to write my own XSL transform, I realized an easy way to get a list of all MARC tags in the source file is to use MarcEdit:
