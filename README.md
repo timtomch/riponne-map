@@ -6,6 +6,17 @@ and map them to the model used by Alma.
 
 ## Lab notes
 
+### Dec 12, 2020
+Completed most of the mapping function.
+
+TO DO:
+- [ ] Map remaining 572s - find a way to copy field with all subfields
+- [ ] Check if all possible subfields are taken care of in 153__$j concatenation
+- [ ] Add failsafe for 153__$a in case there are no 572s
+- [ ] Find out what needs to happen to LDR
+
+Need to do some stress-testing too.
+
 ### Dec 9, 2020
 Added logic for records without `172__$a`
 
@@ -31,7 +42,7 @@ XML output files can be cleaned up (i.e. nicely indented etc.) by using `xmllint
 TO DO:
 - [x] Add logic for records without `172__$a`
 - [ ] Add BCUR switching logic
-- [ ] Start work on mapping function
+- [x] Start work on mapping function
 
 ### Dec 3, 2020
 After trying to write my own XSL transform, I realized an easy way to get a list of all MARC tags in the source file is to use MarcEdit:
