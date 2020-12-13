@@ -44,48 +44,47 @@ def record_crosswalk(record):
     print("record_crosswalk called")
     newrecord = Record()
     
-    # 008 field is mapped as is
+    # 008 field is mapped as is (if it exists)
     try:
         for field in record.get_fields('008'):
                 newrecord.add_field(field)
     except: 
         pass
         
-    # 019 field is mapped as is
+    # 019 field is mapped as is (if it exists)
     try:
         for field in record.get_fields('019'):
                 newrecord.add_field(field)
     except: 
         pass
         
-    # 035 field is mapped as is
+    # 035 fields are mapped as is (if they exist)
     try:
         for field in record.get_fields('035'):
                 newrecord.add_field(field)
     except: 
         pass
     
+    # Add the existing 001 field as an additional 035
+    try:
+        newrecord.add_field(
+            Field(
+                tag = '035',
+                indicators = [' ',' '],
+                subfields = ['a', record['001'].value()]
+                )
+            )
+    except: 
+        pass
       
     # 040__$a is set to static value "RNV vdbcul"
     newrecord.add_field(
             Field(
                 tag = '040',
-                indicators = ['',''],
+                indicators = [' ',' '],
                 subfields = ['a', "RNV vdbcul"]
                 )
             )
-    
-    # 172__$a is mapped to 153__$a        
-    try:
-        newrecord.add_field(
-            Field(
-                tag = '153',
-                indicators = ['',''],
-                subfields = ['a', record['172']['a']]
-                )
-            )
-    except: 
-        pass
         
     # 172__$2 is mapped to 084__$a
     if record['172']['2'] in ["BCUR1","BCUR2","BCUR3"]:
@@ -97,10 +96,41 @@ def record_crosswalk(record):
     newrecord.add_field(
             Field(
                 tag = '084',
-                indicators = ['',''],
+                indicators = [' ',' '],
                 subfields = ['a', mappedvalue]
                 )
             )
+            
+    # 172__$a is mapped to 153__$a   
+    # The first 572 is mapped to 153__$j (concatenating subfields)
+    try:
+        classifications = iter(record.get_fields('572'))
+        firstclassif = classifications.__next__()
+        
+        newclassif = ' -- '.join(firstclassif.get_subfields('a', 'd', 'x', 'y', 'v', '9'))
+        newrecord.add_field(
+                Field(
+                    tag = '153',
+                    indicators = [' ',' '],
+                    subfields = [
+                        'a', record['172']['a'],
+                        'j', newclassif]
+                    )
+                )
+
+        #for otherclassif in classifications:
+             # All remaining 572s are mapped to 753s
+             # Keeping the oringial subfield structure
+
+    except: 
+        pass
+    
+    # 680 fields are mapped as is (if they exist)
+    try:
+        for field in record.get_fields('680'):
+                newrecord.add_field(field)
+    except: 
+        pass
     
     return newrecord    
 
