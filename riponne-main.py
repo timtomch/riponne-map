@@ -1,7 +1,9 @@
 import sys, getopt
-from pymarc import marcxml, map_xml, record_to_xml, XMLWriter, Record, Field
+from pymarc import marcxml, map_xml, record_to_xml, XMLWriter, Record, Field, re
 
-valid_targets = ["musi", "musg", "laf", "vddoc", "BCUmu", "BCUpt", "BCUcg"]
+valid_targets = ["musi", "musg", "laf", "vddoc", "BCURmu", "BCURpt", "BCURcg"]
+pt_regex = "^\(08\)"
+mu_regex = "^\(086\.[08]\)78|^\(07\)78|^\(09\)|^78"
 inputfile = ''
 outputfile = ''
 target = ''
@@ -18,8 +20,21 @@ def record_map(record):
                 print("replaced record:")
                 print(record)
             writer.write(record)
+        elif record['172']['2'] in ['BCUR1','BCUR2','BCUR3']:
+            if re.search(pt_regex,record['172']['a']) != None:
+                if target == 'BCURpt':
+                    record = record_crosswalk(record)
+                    writer.write(record)
+            elif re.search(mu_regex,record['172']['a']) != None:
+                if target == 'BCURmu' and record['172']['2'] == 'BCUR1':
+                    record = record_crosswalk(record)
+                    writer.write(record)
+            elif target == 'BCURcg':
+                record = record_crosswalk(record)
+                writer.write(record)
+            
     except TypeError:
-        print("Record {} does not have a 072__$2 field".format(record['001']))
+        print("WARNING: Record {record['001']} does not have a 072__$2 field")
         
         #print(record)
 
@@ -94,15 +109,27 @@ def record_crosswalk(record):
         elif field.tag == '572':
             if firstsubject == True:
                 newclassif = ' -- '.join(field.get_subfields('a', 'c', 'd', 'e', 'h', 'l', 'm', 's', 't', 'v', 'x', 'X', 'y', 'z', '9', '['))
-                newrecord.add_ordered_field(
-                    Field(
-                        tag = '153',
-                        indicators = [' ',' '],
-                        subfields = [
-                            'a', callnr,
-                            'j', newclassif]
-                        )
-                )
+                if target in ["BCURmu", "BCURpt", "BCURcg"]:
+                    newrecord.add_ordered_field(
+                        Field(
+                            tag = '153',
+                            indicators = [' ',' '],
+                            subfields = [
+                                'a', callnr,
+                                'a', target,
+                                'j', newclassif]
+                            )
+                    )
+                else:
+                    newrecord.add_ordered_field(
+                        Field(
+                            tag = '153',
+                            indicators = [' ',' '],
+                            subfields = [
+                                'a', callnr,
+                                'j', newclassif]
+                            )
+                    )
                 firstsubject = False
             
             # All 572s are mapped to 753s

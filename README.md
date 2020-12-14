@@ -6,6 +6,12 @@ and map them to the model used by Alma.
 
 ## Lab notes
 
+### Dec 13, 2020
+Completed the mapping function, including BCUR regex logic.
+
+More stress test required.
+
+
 ### Dec 12, 2020
 Completed most of the mapping function.
 
@@ -43,7 +49,7 @@ XML output files can be cleaned up (i.e. nicely indented etc.) by using `xmllint
 
 TO DO:
 - [x] Add logic for records without `172__$a`
-- [ ] Add BCUR switching logic
+- [x] Add BCUR switching logic
 - [x] Start work on mapping function
 
 ### Dec 3, 2020
