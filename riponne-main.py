@@ -24,12 +24,16 @@ def record_map(record):
                 if target == 'BCURmu' and record['172']['2'] == 'BCUR1':
                     record = record_crosswalk(record)
                     writer.write(record)
+                else:
+                    # Records matching the BCURmu (musicology, printed music) call number but not in BCUR1 are skipped
+                    # Log this for safe keeping.
+                    print(f"SKIPPED: Record {record['001']} matches musicology call number but is outside BCUR1.")
             elif target == 'BCURcg':
                 record = record_crosswalk(record)
                 writer.write(record)
             
     except TypeError:
-        print("WARNING: Record {record['001']} does not have a 072__$2 field")
+        print(f"WARNING: Record {record['001']} does not have a 172__$2 field")
       
 def record_crosswalk(record):
     # This function maps a record to the format required. The original record is passed as argument and it returns the new record. 
@@ -69,7 +73,7 @@ def record_crosswalk(record):
             elif vocab == "laf":
                 mappedvalue = "laf"
             else:
-                print(f"WARNING 172__$2 for record {recordid} ({vocab}) is not in the list of mapped vocabularies.")
+                print(f"WARNING: 172__$2 for record {recordid} ({vocab}) is not in the list of mapped vocabularies.")
             
             newrecord.add_ordered_field(
                 Field(
@@ -85,7 +89,9 @@ def record_crosswalk(record):
         # The first 572 is mapped to 153__$j (concatenating subfields)
         elif field.tag == '572':
             if firstsubject == True:
-                newclassif = ' -- '.join(field.get_subfields('a', 'c', 'd', 'e', 'h', 'l', 'm', 's', 't', 'v', 'x', 'X', 'y', 'z', '9', '['))
+                # Extract subfields and concatenate them. The get_subfield() method will return them in the
+                # order they are stored in the record, so no reordering is required.
+                newclassif = ' -- '.join(field.get_subfields('a', 'c', 'd', 'e', 'h', 'l', 'm', 's', 't', 'v', 'x', 'X', 'y', 'z'))
                 if target in ["BCURmu", "BCURpt", "BCURcg"]:
                     newrecord.add_ordered_field(
                         Field(
@@ -108,6 +114,15 @@ def record_crosswalk(record):
                             )
                     )
                 firstsubject = False
+                
+                # Look for unexpected subfields
+                if len(field.get_subfields('9', '[')) > 0:
+                    print(f"WARNING: Record {recordid} has unexpected 752 subfields:")
+                    print(field)
+                
+                # Check for empty call numbers
+                if len(callnr) < 1:
+                    print(f"WARNING: Record {recordid} has an empty call number in 153__$a")
             
             # All 572s are mapped to 753s
             # Keeping the oringial subfield structure
@@ -121,14 +136,14 @@ def record_crosswalk(record):
         
         # Log all unmapped fields
         else:
-            print(f"WARNING field not mapped for record {recordid}: {field}")
+            print(f"WARNING: Field not mapped for record {recordid}: {field}")
         
-    # Add the existing 001 field (record id) as an additional 035
+    # Add the existing 001 field (record id) as an additional 035 with (vtls_reroVD) prefix.
     newrecord.add_ordered_field(
         Field(
             tag = '035',
             indicators = [' ',' '],
-            subfields = ['a', recordid]
+            subfields = ['a', "(vtls_reroVD)" + recordid]
             )
         )
       
@@ -140,6 +155,16 @@ def record_crosswalk(record):
                 subfields = ['a', "RNV vdbcul"]
                 )
             )
+    
+    # Edit and map the leader field
+    # Position 17 is set to 'o' for temporary classifications (input file includes "temp")
+    leader = list(record.leader)
+    leader[6] = 'w'
+    if inputfile.find('temp') > -1:
+        leader[17] = 'o'
+    else:
+        leader[17] = 'n'
+    newrecord.leader = ''.join(leader)
     
     return newrecord 
         

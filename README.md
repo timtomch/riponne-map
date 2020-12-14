@@ -12,7 +12,7 @@ Completed the mapping function, including BCUR regex logic. Trial run on BCURmu 
 More stress tests required.
 
 TO DO:
-- [ ] Log unmapped subfields
+- [x] Log unmapped subfields
 - [ ] Complete inline documentation
 - [ ] Investigate if merging resulting files can happen in Python (accept multiple input files)
 
@@ -23,8 +23,8 @@ Completed most of the mapping function.
 TO DO:
 - [x] Map remaining 572s - find a way to copy field with all subfields
 - [x] Check if all possible subfields are taken care of in 153__$j concatenation
-- [ ] Add failsafe for 153__$a in case there are no 572s
-- [ ] Find out what needs to happen to LDR
+- [x] Add failsafe for 153__$a in case there are no 572s
+- [x] Find out what needs to happen to LDR
 - [x] Log all unmapped fields
 - [x] Less permissive error catching - log all errors
 
