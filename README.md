@@ -7,9 +7,14 @@ and map them to the model used by Alma.
 ## Lab notes
 
 ### Dec 13, 2020
-Completed the mapping function, including BCUR regex logic.
+Completed the mapping function, including BCUR regex logic. Trial run on BCURmu successful.
 
-More stress test required.
+More stress tests required.
+
+TO DO:
+- [ ] Log unmapped subfields
+- [ ] Complete inline documentation
+- [ ] Investigate if merging resulting files can happen in Python (accept multiple input files)
 
 
 ### Dec 12, 2020

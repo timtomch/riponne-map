@@ -1,5 +1,5 @@
-import sys, getopt
-from pymarc import marcxml, map_xml, record_to_xml, XMLWriter, Record, Field, re
+import sys, getopt, re
+from pymarc import marcxml, map_xml, record_to_xml, XMLWriter, Record, Field
 
 valid_targets = ["musi", "musg", "laf", "vddoc", "BCURmu", "BCURpt", "BCURcg"]
 pt_regex = "^\(08\)"
@@ -13,12 +13,7 @@ def record_map(record):
     try:
         if record['172']['2'] in target:
             if mapping == True:
-                print("original record:")
-                print(record)
                 record = record_crosswalk(record)
-                #record = dummy_record(record)
-                print("replaced record:")
-                print(record)
             writer.write(record)
         elif record['172']['2'] in ['BCUR1','BCUR2','BCUR3']:
             if re.search(pt_regex,record['172']['a']) != None:
@@ -35,28 +30,10 @@ def record_map(record):
             
     except TypeError:
         print("WARNING: Record {record['001']} does not have a 072__$2 field")
-        
-        #print(record)
-
-def dummy_record(record):
-    # To try stuff out. Remove when done debugging.
-    newrecord = Record()
-    try:
-        newrecord.add_field(record['008'])
-    except: 
-        pass
-    try:
-        for field in record.get_fields('035'):
-                newrecord.add_field(field)
-    except: 
-        pass
-    
-    return newrecord
-
       
 def record_crosswalk(record):
     # This function maps a record to the format required. The original record is passed as argument and it returns the new record. 
-    print("record_crosswalk called")
+
     newrecord = Record()
     
     recordid = ''
