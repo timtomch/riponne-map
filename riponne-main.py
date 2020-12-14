@@ -44,96 +44,101 @@ def record_crosswalk(record):
     print("record_crosswalk called")
     newrecord = Record()
     
-    # 008 field is mapped as is (if it exists)
-    try:
-        for field in record.get_fields('008'):
-                newrecord.add_field(field)
-    except: 
-        pass
-        
-    # 019 field is mapped as is (if it exists)
-    try:
-        for field in record.get_fields('019'):
-                newrecord.add_field(field)
-    except: 
-        pass
-        
-    # 035 fields are mapped as is (if they exist)
-    try:
-        for field in record.get_fields('035'):
-                newrecord.add_field(field)
-    except: 
-        pass
+    recordid = ''
+    callnr = ''
+    callorigin = ''
     
-    # Add the existing 001 field as an additional 035
-    try:
-        newrecord.add_field(
-            Field(
-                tag = '035',
-                indicators = [' ',' '],
-                subfields = ['a', record['001'].value()]
+    firstsubject = True
+    
+    for field in record.get_fields():
+        
+        if field.tag == '001':
+            recordid = field.value()
+        
+        # 008 field is mapped as is (if it exists)
+        elif field.tag == '008':
+            newrecord.add_field(field)
+        
+        # 019 field is mapped as is (if it exists)
+        elif field.tag == '019':
+            newrecord.add_field(field)
+        
+        # 035 fields are mapped as is (if they exist)
+        elif field.tag == '035':
+            newrecord.add_field(field)
+            
+        # 172__$2 is mapped to 084__$a
+        elif field.tag == '172':
+            vocab = field.get_subfields('2')[0]
+            if vocab in ["BCUR1","BCUR2","BCUR3"]:
+                mappedvalue = "CLASBCUR"
+            elif vocab in ["vddoc","vddoc-la"]:
+                mappedvalue = "vddoc"
+            elif vocab == "laf":
+                mappedvalue = "laf"
+            else:
+                print(f"WARNING 172__$2 for record {recordid} ({vocab}) is not in the list of mapped vocabularies.")
+            
+            newrecord.add_ordered_field(
+                Field(
+                    tag = '084',
+                    indicators = [' ',' '],
+                    subfields = ['a', mappedvalue]
+                    )
                 )
+            
+            # 172__$a will be mapped to 153__$a  
+            callnr = field.get_subfields('a')[0]
+        
+        # The first 572 is mapped to 153__$j (concatenating subfields)
+        elif field.tag == '572':
+            if firstsubject == True:
+                newclassif = ' -- '.join(field.get_subfields('a', 'c', 'd', 'e', 'h', 'l', 'm', 's', 't', 'v', 'x', 'X', 'y', 'z', '9', '['))
+                newrecord.add_ordered_field(
+                    Field(
+                        tag = '153',
+                        indicators = [' ',' '],
+                        subfields = [
+                            'a', callnr,
+                            'j', newclassif]
+                        )
+                )
+                firstsubject = False
+            
+            # All 572s are mapped to 753s
+            # Keeping the oringial subfield structure
+            subjectfield = field
+            subjectfield.tag = '753'
+            newrecord.add_ordered_field(subjectfield)   
+        
+        # 680 fields are mapped as is (if they exist)     
+        elif field.tag == '680':
+            newrecord.add_ordered_field(field)
+        
+        # Log all unmapped fields
+        else:
+            print(f"WARNING field not mapped for record {recordid}: {field}")
+        
+    # Add the existing 001 field (record id) as an additional 035
+    newrecord.add_ordered_field(
+        Field(
+            tag = '035',
+            indicators = [' ',' '],
+            subfields = ['a', recordid]
             )
-    except: 
-        pass
+        )
       
     # 040__$a is set to static value "RNV vdbcul"
-    newrecord.add_field(
+    newrecord.add_ordered_field(
             Field(
                 tag = '040',
                 indicators = [' ',' '],
                 subfields = ['a', "RNV vdbcul"]
                 )
             )
-        
-    # 172__$2 is mapped to 084__$a
-    if record['172']['2'] in ["BCUR1","BCUR2","BCUR3"]:
-        mappedvalue = "CLASBCUR"
-    elif record['172']['2'] in ["vddoc","vddoc-la"]:
-        mappedvalue = "vddoc"
-    elif record['172']['2'] == "laf":
-        mappedvalue = "laf"
-    newrecord.add_field(
-            Field(
-                tag = '084',
-                indicators = [' ',' '],
-                subfields = ['a', mappedvalue]
-                )
-            )
-            
-    # 172__$a is mapped to 153__$a   
-    # The first 572 is mapped to 153__$j (concatenating subfields)
-    try:
-        classifications = iter(record.get_fields('572'))
-        firstclassif = classifications.__next__()
-        
-        newclassif = ' -- '.join(firstclassif.get_subfields('a', 'd', 'x', 'y', 'v', '9'))
-        newrecord.add_field(
-                Field(
-                    tag = '153',
-                    indicators = [' ',' '],
-                    subfields = [
-                        'a', record['172']['a'],
-                        'j', newclassif]
-                    )
-                )
-
-        #for otherclassif in classifications:
-             # All remaining 572s are mapped to 753s
-             # Keeping the oringial subfield structure
-
-    except: 
-        pass
     
-    # 680 fields are mapped as is (if they exist)
-    try:
-        for field in record.get_fields('680'):
-                newrecord.add_field(field)
-    except: 
-        pass
-    
-    return newrecord    
-
+    return newrecord 
+        
 
 def main(argv):
     usage = f"Usage: riponne-main.py -m <map target code> -i <inputfile> -o <outputfile>\nMap target code is one of {valid_targets}"

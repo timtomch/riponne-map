@@ -10,10 +10,12 @@ and map them to the model used by Alma.
 Completed most of the mapping function.
 
 TO DO:
-- [ ] Map remaining 572s - find a way to copy field with all subfields
-- [ ] Check if all possible subfields are taken care of in 153__$j concatenation
+- [x] Map remaining 572s - find a way to copy field with all subfields
+- [x] Check if all possible subfields are taken care of in 153__$j concatenation
 - [ ] Add failsafe for 153__$a in case there are no 572s
 - [ ] Find out what needs to happen to LDR
+- [x] Log all unmapped fields
+- [x] Less permissive error catching - log all errors
 
 Need to do some stress-testing too.
 
