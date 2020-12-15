@@ -6,6 +6,24 @@ and map them to the model used by Alma.
 
 ## Lab notes
 
+### Dec 14, 2020
+Rewrote the main function using [`argparse`](https://docs.python.org/3/howto/argparse.html) in order to accept multiple input files and loop through them. This way, output from
+mulitple input files is stored in the same file.
+
+Fixed some faulty logic that wasn't mapping temporary (short) records well enough.
+
+Added some processing to the LDR (position 17 is set to `w` for full records and `o` for temp/short records).
+
+Enhanced logging functionality to track all skipped fields and subfields.
+
+Did some stress testing and ran all mappings for client to check.
+
+TO DO:
+- [ ] Write usage documentation
+- [ ] Add failsafe for records without a 172__$a
+- [ ] Run vddoc mapping
+
+
 ### Dec 13, 2020
 Completed the mapping function, including BCUR regex logic. Trial run on BCURmu successful.
 
@@ -14,7 +32,7 @@ More stress tests required.
 TO DO:
 - [x] Log unmapped subfields
 - [ ] Complete inline documentation
-- [ ] Investigate if merging resulting files can happen in Python (accept multiple input files)
+- [x] Investigate if merging resulting files can happen in Python (accept multiple input files)
 
 
 ### Dec 12, 2020

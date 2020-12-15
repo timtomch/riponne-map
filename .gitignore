@@ -1,6 +1,7 @@
 sample-files/
 source-files/
 output/
+output_clean/
 analysis/
 log/
 .DS_Store
