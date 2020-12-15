@@ -6,6 +6,14 @@ and map them to the model used by Alma.
 
 ## Lab notes
 
+### Dec 15, 2020
+Added a failsafe for records without `172__$a` field and ran vddoc mapping successfully.
+The vddoc routine is run twice for each file, once looking for `vddoc` and once for `vddoc-la` so it takes twice as long to process (about 140 seconds instead of 70ish).
+Not super efficient, could be done better, but it works. Memory usage might be an issue if running the function on a larger number of records.
+
+Added more inline documentation and 
+
+
 ### Dec 14, 2020
 Rewrote the main function using [`argparse`](https://docs.python.org/3/howto/argparse.html) in order to accept multiple input files and loop through them. This way, output from
 mulitple input files is stored in the same file.
@@ -20,8 +28,8 @@ Did some stress testing and ran all mappings for client to check.
 
 TO DO:
 - [ ] Write usage documentation
-- [ ] Add failsafe for records without a 172__$a
-- [ ] Run vddoc mapping
+- [x] Add failsafe for records without a 172__$a
+- [x] Run vddoc mapping
 
 
 ### Dec 13, 2020
@@ -31,7 +39,7 @@ More stress tests required.
 
 TO DO:
 - [x] Log unmapped subfields
-- [ ] Complete inline documentation
+- [x] Complete inline documentation
 - [x] Investigate if merging resulting files can happen in Python (accept multiple input files)
 
 
