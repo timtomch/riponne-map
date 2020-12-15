@@ -11,7 +11,7 @@ Added a failsafe for records without `172__$a` field and ran vddoc mapping succe
 The vddoc routine is run twice for each file, once looking for `vddoc` and once for `vddoc-la` so it takes twice as long to process (about 140 seconds instead of 70ish).
 Not super efficient, could be done better, but it works. Memory usage might be an issue if running the function on a larger number of records.
 
-Added more inline documentation and 
+Added more inline documentation and cleaned up code a little.
 
 
 ### Dec 14, 2020
