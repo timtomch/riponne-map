@@ -1,17 +1,16 @@
-import sys, getopt, re
+import argparse, re, datetime
 from pymarc import marcxml, map_xml, record_to_xml, XMLWriter, Record, Field
 
 valid_targets = ["musi", "musg", "laf", "vddoc", "BCURmu", "BCURpt", "BCURcg"]
 pt_regex = "^\(08\)"
 mu_regex = "^\(086\.[08]\)78|^\(07\)78|^\(09\)|^78"
-inputfile = ''
-outputfile = ''
 target = ''
+inputfile = ''
 mapping = True
 
 def record_map(record):
     try:
-        if record['172']['2'] in target:
+        if record['172']['2'] == target:
             if mapping == True:
                 record = record_crosswalk(record)
             writer.write(record)
@@ -21,13 +20,14 @@ def record_map(record):
                     record = record_crosswalk(record)
                     writer.write(record)
             elif re.search(mu_regex,record['172']['a']) != None:
-                if target == 'BCURmu' and record['172']['2'] == 'BCUR1':
-                    record = record_crosswalk(record)
-                    writer.write(record)
-                else:
-                    # Records matching the BCURmu (musicology, printed music) call number but not in BCUR1 are skipped
-                    # Log this for safe keeping.
-                    print(f"SKIPPED: Record {record['001']} matches musicology call number but is outside BCUR1.")
+                if target == 'BCURmu':
+                    if record['172']['2'] == 'BCUR1':
+                        record = record_crosswalk(record)
+                        writer.write(record)
+                    else:
+                        # Records matching the BCURmu (musicology, printed music) call number but not in BCUR1 are skipped
+                        # Log this for safe keeping
+                        print(f"SKIPPED: Record {record['001']} matches musicology call number but is outside BCUR1.")
             elif target == 'BCURcg':
                 record = record_crosswalk(record)
                 writer.write(record)
@@ -43,6 +43,7 @@ def record_crosswalk(record):
     recordid = ''
     callnr = ''
     callorigin = ''
+    newclassif = ''
     
     firstsubject = True
     
@@ -73,6 +74,7 @@ def record_crosswalk(record):
             elif vocab == "laf":
                 mappedvalue = "laf"
             else:
+                mappedvalue = vocab
                 print(f"WARNING: 172__$2 for record {recordid} ({vocab}) is not in the list of mapped vocabularies.")
             
             newrecord.add_ordered_field(
@@ -92,27 +94,6 @@ def record_crosswalk(record):
                 # Extract subfields and concatenate them. The get_subfield() method will return them in the
                 # order they are stored in the record, so no reordering is required.
                 newclassif = ' -- '.join(field.get_subfields('a', 'c', 'd', 'e', 'h', 'l', 'm', 's', 't', 'v', 'x', 'X', 'y', 'z'))
-                if target in ["BCURmu", "BCURpt", "BCURcg"]:
-                    newrecord.add_ordered_field(
-                        Field(
-                            tag = '153',
-                            indicators = [' ',' '],
-                            subfields = [
-                                'a', callnr,
-                                'a', target,
-                                'j', newclassif]
-                            )
-                    )
-                else:
-                    newrecord.add_ordered_field(
-                        Field(
-                            tag = '153',
-                            indicators = [' ',' '],
-                            subfields = [
-                                'a', callnr,
-                                'j', newclassif]
-                            )
-                    )
                 firstsubject = False
                 
                 # Look for unexpected subfields
@@ -136,7 +117,42 @@ def record_crosswalk(record):
         
         # Log all unmapped fields
         else:
-            print(f"WARNING: Field not mapped for record {recordid}: {field}")
+            print(f"SKIPPED: Field not mapped for record {recordid}: {field}")
+    
+    # Put the 153 field together
+    if len(newclassif) < 1:
+        # If there is no concatenated classification string, it was a record without 572, only store the call number:
+        newrecord.add_ordered_field(
+            Field(
+                tag = '153',
+                indicators = [' ',' '],
+                subfields = [
+                    'a', callnr]
+                )
+        )
+    elif target in ["BCURmu", "BCURpt", "BCURcg"]:
+        # If there is a concatenated classification string and target is one of the BCUR** vocabularies:
+        newrecord.add_ordered_field(
+            Field(
+                tag = '153',
+                indicators = [' ',' '],
+                subfields = [
+                    'a', callnr,
+                    'a', target,
+                    'j', newclassif]
+                )
+        )
+    else:
+        # Else, if there is a concatenated classification string, but it's another vocabulary:
+        newrecord.add_ordered_field(
+            Field(
+                tag = '153',
+                indicators = [' ',' '],
+                subfields = [
+                    'a', callnr,
+                    'j', newclassif]
+                )
+        )
         
     # Add the existing 001 field (record id) as an additional 035 with (vtls_reroVD) prefix.
     newrecord.add_ordered_field(
@@ -169,47 +185,46 @@ def record_crosswalk(record):
     return newrecord 
         
 
-def main(argv):
-    usage = f"Usage: riponne-main.py -m <map target code> -i <inputfile> -o <outputfile>\nMap target code is one of {valid_targets}"
-    global inputfile, outputfile, target, mapping
-    try:
-        opts, args = getopt.getopt(argv,"hm:i:o:",["ifile=","ofile=", "map="])
-    except getopt.GetoptError:
-        print(usage)
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print(usage)
-            sys.exit()
-        elif opt in ("-i", "--ifile"):
-            inputfile = arg
-        elif opt in ("-o", "--ofile"):
-            outputfile = arg
-        elif opt in ("-m", "--map"):
-            if arg in valid_targets:
-                target = arg
-            else:
-                print(f"Invalid mapping option. Must be one of {valid_targets}")
-                sys.exit(2)
-                
-    if target in ('musi', 'musg'):
+def main():
+    global inputfile, target, mapping
+    parser = argparse.ArgumentParser(description='Process and map classification authority records for BCUR.')
+    parser.add_argument('-i','--inputfiles', type=str, nargs='+', help='one or more file(s) to be processed',required=True)
+    parser.add_argument('-o','--outputfile', type=str, nargs=1, help='name of the output file',required=True)
+    parser.add_argument('-m','--map', type=str, nargs=1, help='map target code',required=True,choices=valid_targets)
+    
+    args = parser.parse_args()
+    
+    targetcode = args.map[0]
+    if targetcode in ('musi', 'musg'):
         mapping = False
-    elif target == 'vddoc':
-        target = ['vddoc','vddoc-la']
-        
+    #elif target == 'vddoc':
+        #target = ['vddoc','vddoc-la']
+
     
-    
-    if mapping:
-        print(f"Processing {inputfile} with mapping {target}")
-    else:
-        print(f"Processing {inputfile} without mapping")
-    
+    outputfile = args.outputfile[0]
     
     global writer
     writer = XMLWriter(open(outputfile,'wb'))
-    map_xml(record_map,inputfile)
+    
+    tstart = datetime.datetime.now()
+    for infile in args.inputfiles:
+        inputfile = infile
+        if mapping:
+            print(f"----- Processing {inputfile} with mapping {target} -----")
+        else:
+            print(f"----- Processing {inputfile} without mapping -----")
+        target = targetcode
+        map_xml(record_map,inputfile)
+        
+        if targetcode == 'vddoc':
+            # For vddoc, also look for vddoc-la
+            target = 'vddoc-la'
+            map_xml(record_map,inputfile)
+    
+    tdiff = datetime.datetime.now() - tstart
+
     writer.close()    
-    print(f'Saved as {outputfile}')
+    print(f'Job finished in {tdiff.total_seconds()} seconds. Output saved as {outputfile}')
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   main()
