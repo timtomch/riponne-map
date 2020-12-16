@@ -143,38 +143,50 @@ def record_crosswalk(record):
     
     # Put the 153 field together
     if len(newclassif) < 1:
-        # If there is no concatenated classification string, it was a record without 572, only store the call number:
-        newrecord.add_ordered_field(
-            Field(
-                tag = '153',
-                indicators = [' ',' '],
-                subfields = [
-                    'a', callnr]
-                )
-        )
-    elif target in ["BCURmu", "BCURpt", "BCURcg"]:
-        # If there is a concatenated classification string and target is one of the BCUR** vocabularies:
-        newrecord.add_ordered_field(
-            Field(
-                tag = '153',
-                indicators = [' ',' '],
-                subfields = [
-                    'a', callnr,
-                    'a', target,
-                    'j', newclassif]
-                )
-        )
+        # If there is no concatenated classification string, it was a record without 572, only store the call number.
+        # If the target is in one of the BCUR* vocabularies, also add the target as a $a 
+        if target in ["BCURmu", "BCURpt", "BCURcg"]:
+            newrecord.add_ordered_field(
+                Field(
+                    tag = '153',
+                    indicators = [' ',' '],
+                    subfields = [
+                        'a', callnr,
+                        'a', target]
+                        )
+                    )
+        else:
+            newrecord.add_ordered_field(
+                Field(
+                    tag = '153',
+                    indicators = [' ',' '],
+                    subfields = [
+                        'a', callnr]
+                        )
+                    )
     else:
-        # Else, if there is a concatenated classification string, but it's another vocabulary:
-        newrecord.add_ordered_field(
-            Field(
-                tag = '153',
-                indicators = [' ',' '],
-                subfields = [
-                    'a', callnr,
-                    'j', newclassif]
-                )
-        )
+        # If there is a concatenated classification string, same process but with the new classification in a $j
+        if target in ["BCURmu", "BCURpt", "BCURcg"]:
+            newrecord.add_ordered_field(
+                Field(
+                    tag = '153',
+                    indicators = [' ',' '],
+                    subfields = [
+                        'a', callnr,
+                        'a', target,
+                        'j', newclassif]
+                        )
+                    )
+        else:
+            newrecord.add_ordered_field(
+                Field(
+                    tag = '153',
+                    indicators = [' ',' '],
+                    subfields = [
+                        'a', callnr,
+                        'j', newclassif]
+                        )
+                    )
         
     # Add the existing 001 field (record id) as an additional 035 with (vtls_reroVD) prefix.
     newrecord.add_ordered_field(
