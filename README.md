@@ -4,7 +4,41 @@ I got invovled in a metadata cleanup project following the RenouVaud project, in
 Some local classification data was lost during the migration. This project aims to extract select classification authority records from the former system
 and map them to the model used by Alma.
 
+## Usage
+The main script is called `riponne-main.py` and can be run from the command-line as follows:
+
+```
+python riponne-main.py -i <SOURCE FILE(S)> -o <OUTPUT FILE> -m <MAPPING>
+```
+Where
+* `<SOURCE FILE(S)>` (required) is the path to one or more files in MARCXML format on which to run the script. A wildcard character can be used to select multiple files.
+* `<OUTPUT FILE>` (required) is the path to the file that will be written as output.
+* `<MAPPING>` (required) is one of `musi`, `musg`, `laf`, `vddoc`, `BCURmu`, `BCURpt` or `BCURcg` (vocabularies to be mapped)
+
+Log information will be output on the console. If you wish to store it in a log file, simply redirect the output to a file (see example below).
+
+Example:
+
+```
+python riponne-main.py -i source-files/*.xml -o output/laf.xml -m laf >> log/20210105-laf.log
+```
+
+
+### System Requirements
+Python version 3.6 or higher is required. This was tested with version 3.8.5.
+
+The following libraries are used. You may need to install them prior to running the script:
+* [pymarc](pymarc.readthedocs.io/) (for handling MARC records)
+* [argparse](https://docs.python.org/3/library/argparse.html) (for parsing arguments)
+* [re](https://docs.python.org/3/library/re.html) (for pattern-matching using regular expressions)
+* [datetime](https://docs.python.org/3/library/datetime.html) (for tracking run time)
+
 ## Lab notes
+These are my personal notes while working on this code. Feel free to disregard.
+
+### Jan 5, 2021
+Modified logging format to be more readable, no longer logging fields that are skipped by design. Also, the log now is in French.
+
 
 ### Dec 15, 2020
 Added another failsafe for records without `172__$a` field and ran vddoc mapping successfully.
@@ -42,7 +76,7 @@ Enhanced logging functionality to track all skipped fields and subfields.
 Did some stress testing and ran all mappings for client to check.
 
 TO DO:
-- [ ] Write usage documentation
+- [x] Write usage documentation
 - [x] Add failsafe for records without a 172__$a
 - [x] Run vddoc mapping
 

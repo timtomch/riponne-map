@@ -39,14 +39,16 @@ def record_map(record):
                     else:
                         # Records matching the BCURmu (musicology, printed music) call number but not in BCUR1 are skipped
                         # Log this for safe keeping
-                        print(f"SKIPPED: Record {record['001'].value()} matches musicology call number but is outside BCUR1.")
+                        #print(f"SKIPPED: Record {record['001'].value()} matches musicology call number but is outside BCUR1.")
+                        print(f"{record['001'].value()},172__$a,{record['172']['a']},Notice avec indice de musicologie mais ignorée car 172__$2 = {record['172']['2']} et non BCUR1")
             elif target == 'BCURcg':
                 # If neither call number format matches and we're looking for general collection records, run the field mapping function
                 record = record_crosswalk(record)
                 writer.write(record)
             
     except TypeError:
-        print(f"WARNING: Record {record['001'].value()} does not have a 172__$2 field")
+        #print(f"WARNING: Record {record['001'].value()} does not have a 172__$2 field")
+        print(f"{record['001'].value()},172__$2,,Notice sans champ 172__$2")
 
 
 # This function maps a record to the format required. The original record is passed as argument and it returns the new record.      
@@ -94,7 +96,8 @@ def record_crosswalk(record):
                 mappedvalue = "laf"
             else:
                 mappedvalue = vocab
-                print(f"WARNING: 172__$2 for record {recordid} ({vocab}) is not in the list of mapped vocabularies.")
+                #print(f"WARNING: 172__$2 for record {recordid} ({vocab}) is not in the list of mapped vocabularies.")
+                print(f"{recordid},172__$2,{vocab},Ne figure pas sur la liste des vocabulaires traités")
             
             newrecord.add_ordered_field(
                 Field(
@@ -108,7 +111,8 @@ def record_crosswalk(record):
             try: 
                 callnr = field.get_subfields('a')[0]
             except IndexError:
-                print(f"WARNING: record {recordid} has no 172__$a.")
+                #print(f"WARNING: record {recordid} has no 172__$a.")
+                print(f"{recordid},172__$a,,Notice sans champ  172__$a")
         
         # The first 572 is mapped to 153__$j (concatenating subfields)
         elif field.tag == '572':
@@ -120,8 +124,9 @@ def record_crosswalk(record):
                 
                 # Look for unexpected subfields
                 if len(field.get_subfields('9', '[')) > 0:
-                    print(f"WARNING: Record {recordid} has unexpected 752 subfields:")
-                    print(field)
+                    #print(f"WARNING: Record {recordid} has unexpected 752 subfields:")
+                    #print(field)
+                    print(f"{recordid},752,{field.value},Sous-champ(s) 752 inattendu(s)")
             
             # All 572s are mapped to 753s
             # Keeping the oringial subfield structure
@@ -133,13 +138,15 @@ def record_crosswalk(record):
         elif field.tag == '680':
             newrecord.add_ordered_field(field)
         
-        # Log all unmapped fields
-        else:
-            print(f"SKIPPED: Field not mapped for record {recordid}: {field}")
+        # Log all unmapped fields, except 003, 005, 039, 040 and 072
+        elif field.tag not in ['003','005','039','040','072']:
+            #print(f"SKIPPED: Field not mapped for record {recordid}: {field}")
+            print(f"{recordid},{field.tag},{field},Champ non mappé")
     
     # Check for empty or missing call numbers
     if len(callnr) < 1:
-        print(f"WARNING: Record {recordid} has an empty call number in 153__$a")
+        #print(f"WARNING: Record {recordid} has an empty call number in 153__$a")
+        print(f"{recordid},153__$a,,Indice vide ou manquant")
     
     # Put the 153 field together
     if len(newclassif) < 1:
@@ -244,14 +251,17 @@ def main():
     # Record start processing time
     tstart = datetime.datetime.now()
     
+    # Print header row in case log is opened as CSV
+    print("Notice,Champ,Contenu du champ,Message")
+    
     # Loop through the list of input files and call the mapping function
     for infile in args.inputfiles:
         inputfile = infile
         target = targetcode
         if mapping:
-            print(f"----- Processing {inputfile} with mapping {target} -----")
+            print(f"----- Traitement du fichier {inputfile} avec mapping {target} -----")
         else:
-            print(f"----- Processing {inputfile} without mapping -----")
+            print(f"----- Traitement du fichier {inputfile} sans mapping -----")
         
         # This applies the mapping function to each record in inputfile
         map_xml(record_map,inputfile)
@@ -267,7 +277,7 @@ def main():
     # Close the output document
     writer.close()
     
-    print(f'Job finished in {tdiff.total_seconds()} seconds. Output saved as {outputfile}')
+    print(f'Routine terminée en {tdiff.total_seconds()} secondes. Résultat enregistré dans {outputfile}')
 
 if __name__ == "__main__":
    main()
