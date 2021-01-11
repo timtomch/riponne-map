@@ -36,6 +36,12 @@ The following libraries are used. You may need to install them prior to running 
 ## Lab notes
 These are my personal notes while working on this code. Feel free to disregard.
 
+### Jan 11, 2021
+Modified the script to map `019__$a` fields to `680__$i` at the request of client. Also corrected two small cataloguing inconsistencies in the source files that were discovered by analyzing the logs.
+
+Did a fresh run on all vocabularies and delivered new mapped files.
+
+
 ### Jan 5, 2021
 Modified logging format to be more readable, no longer logging fields that are skipped by design. Also, the log now is in French.
 
