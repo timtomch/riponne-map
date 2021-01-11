@@ -77,9 +77,20 @@ def record_crosswalk(record):
         elif field.tag == '008':
             newrecord.add_field(field)
         
-        # 019 field is mapped as is (if it exists)
+        # 019__$a field is mapped to 680__$i
         elif field.tag == '019':
-            newrecord.add_field(field)
+            try:
+                indexnote = field.get_subfields('a')[0]
+                newrecord.add_ordered_field(
+                    Field(
+                        tag = '680',
+                        indicators = [' ',' '],
+                        subfields = ['i', indexnote]
+                        )
+                    )
+            except IndexError:
+                #print(f"WARNING: record {recordid} has no 172__$a.")
+                print(f"{recordid},019__$a,{field.value},Notice avec 019 mais sans 019__$a")
         
         # 035 fields are mapped as is (if they exist)
         elif field.tag == '035':
